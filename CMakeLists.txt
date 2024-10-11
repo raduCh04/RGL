@@ -4,6 +4,6 @@ project(RGL)
 
 add_subdirectory(vendor/glfw)
 
-add_executable(RGL src/glad.c src/main.c)
+add_executable(RGL src/glad.c src/main.c src/vbo.c src/vao.c src/shader.c)
 target_include_directories(RGL PRIVATE include vendor/glfw/include)
 target_link_libraries(RGL glfw)
