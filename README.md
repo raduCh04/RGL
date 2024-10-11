@@ -1,5 +1,12 @@
-# RGL  
-An only header OpenGL wrapper for personal use
+# RGL - OpenGL Wrapper
+
+RGL is a lightweight and easy-to-use OpenGL wrapper developed for personal projects and experimentation with OpenGL functionalities. This wrapper streamlines the setup and use of OpenGL, allowing you to focus on rendering and visualizing graphics without diving deep into the complexities of OpenGL's API.  
+
+### Features
+
+- Simplified OpenGL setup
+- Basic rendering functionality
+- Easy-to-use C interface for quick integration# RGL  
 
 ## Usage
 
@@ -10,5 +17,8 @@ Create only **one** additional C/C++ file:
 ```
 After that use the "rgl.h" file as a common header file.
 
-Remark: You can also use another OpenGL loader. In my case I use GLAD, but you can use
-something like GLEW or load the functions by yourself. Also do not forget to initialize your OpenGL loader library, or nothing will work.
+**Remark**: You can also use another OpenGL loader. In my case I use GLAD, but you can use something like GLEW or load the functions by yourself. Also do not forget to initialize your OpenGL loader library, or nothing will work.
+
+## License
+
+[MIT](https://mit-license.org/)
