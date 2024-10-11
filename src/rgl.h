@@ -25,40 +25,48 @@ typedef struct shader
     bool valid;
 } shader;
 
-extern vbo vbo_create(GLint type, bool dynamic);
+#ifndef RGLDEF
+    #ifdef RLG_STATIC
+        #define RGLDEF static
+    #else
+        #define RGLDEF extern
+    #endif
+#endif
 
-extern void vbo_bind(vbo self);
+RGLDEF vbo vbo_create(GLint type, bool dynamic);
 
-extern void vbo_unbind(vbo self);
+RGLDEF void vbo_bind(vbo self);
 
-extern void vbo_delete(vbo self);
+RGLDEF void vbo_unbind(vbo self);
 
-extern void vbo_buffer(vbo self, void *data, GLuint64 offset, GLuint64 count);
+RGLDEF void vbo_delete(vbo self);
 
-extern vao vao_create();
+RGLDEF void vbo_buffer(vbo self, void *data, GLuint64 offset, GLuint64 count);
 
-extern void vao_bind(vao self);
+RGLDEF vao vao_create();
 
-extern void vao_unbind(vao self);
+RGLDEF void vao_bind(vao self);
 
-extern void vao_delete(vao self);
+RGLDEF void vao_unbind(vao self);
 
-extern void vao_attrib(vao self, vbo vbo, GLuint index,
+RGLDEF void vao_delete(vao self);
+
+RGLDEF void vao_attrib(vao self, vbo vbo, GLuint index,
                 GLint size, GLenum type,
                 GLsizei stride, GLuint64 offset);
 
 
-shader shader_create(char *vs_data, char *fs_data, GLuint64 count);
+RGLDEF shader shader_create(char *vs_data, char *fs_data, GLuint64 count);
 
-void shader_bind(shader self);
+RGLDEF void shader_bind(shader self);
 
-void shader_unbind(shader self);
+RGLDEF void shader_unbind(shader self);
 
-void shader_delete(shader self);
+RGLDEF void shader_delete(shader self);
 
 //TODO: Add uniforms
 #ifdef _RGL_IMPLEMENTATION_
-vbo vbo_create(GLint type, bool dynamic)
+RGLDEF vbo vbo_create(GLint type, bool dynamic)
 {
     vbo result = {
         .dynamic = dynamic,
@@ -69,50 +77,50 @@ vbo vbo_create(GLint type, bool dynamic)
     return result;
 }
 
-void vbo_bind(vbo self)
+RGLDEF void vbo_bind(vbo self)
 {
     glBindBuffer(self.type, self.id);
 }
 
-void vbo_unbind(vbo self)
+RGLDEF void vbo_unbind(vbo self)
 {
     glBindBuffer(self.type, 0);
 }
 
-void vbo_delete(vbo self)
+RGLDEF void vbo_delete(vbo self)
 {
     glDeleteBuffers(1, &self.id);
 }
 
-void vbo_buffer(vbo self, void *data, GLuint64 offset, GLuint64 count)
+RGLDEF void vbo_buffer(vbo self, void *data, GLuint64 offset, GLuint64 count)
 {
     vbo_bind(self);
     glBufferData(GL_ARRAY_BUFFER, count - offset, data, self.dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
 }
 
-vao vao_create()
+RGLDEF vao vao_create()
 {
     vao result = {0};
     glGenVertexArrays(1, &result.id);    
     return result;
 }
 
-void vao_bind(vao self)
+RGLDEF void vao_bind(vao self)
 {
     glBindVertexArray(self.id);
 }
 
-void vao_unbind(vao self)
+RGLDEF void vao_unbind(vao self)
 {
     glBindVertexArray(0);
 }
 
-void vao_delete(vao self)
+RGLDEF void vao_delete(vao self)
 {
     glDeleteVertexArrays(1, &self.id);
 }
 
-void vao_attrib(vao self, vbo vbo, GLuint index, GLint size, GLenum type, GLsizei stride, GLuint64 offset)
+RGLDEF void vao_attrib(vao self, vbo vbo, GLuint index, GLint size, GLenum type, GLsizei stride, GLuint64 offset)
 {
     vao_bind(self);
     vbo_bind(vbo);
@@ -139,7 +147,7 @@ void vao_attrib(vao self, vbo vbo, GLuint index, GLint size, GLenum type, GLsize
 * meaning you have to load the data with your own read API
 * shader.valid is for checking if the program was compiled successfully
 */
-shader shader_create(char *vs_data, char *fs_data, GLuint64 count)
+RGLDEF shader shader_create(char *vs_data, char *fs_data, GLuint64 count)
 {
     shader result = {0};
 
@@ -161,17 +169,17 @@ shader shader_create(char *vs_data, char *fs_data, GLuint64 count)
     glLinkProgram(result.id);
 }
 
-void shader_bind(shader self)
+RGLDEF void shader_bind(shader self)
 {
     glUseProgram(self.id);
 }
 
-void shader_unbind(shader self)
+RGLDEF void shader_unbind(shader self)
 {
     glUseProgram(0);
 }
 
-void shader_delete(shader self)
+RGLDEF void shader_delete(shader self)
 {
     glDeleteProgram(self.id);
     glDeleteShader(self.vs_id);

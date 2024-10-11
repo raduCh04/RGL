@@ -15,7 +15,11 @@ Create only **one** additional C/C++ file:
 #define _RGL_IMPLEMENTATION_
 #include "rgl.h"
 ```
-After that use the "rgl.h" file as a common header file.
+After that use the "rgl.h" file as a common header file. If you want to use the wrapper within one translation unit add also:
+```c
+#define RGL_STATIC
+```
+before including the file so every function becomes static by default.
 
 **Remark**: You can also use another OpenGL loader. In my case I use GLAD, but you can use something like GLEW or load the functions by yourself. Also do not forget to initialize your OpenGL loader library, or nothing will work.
 
