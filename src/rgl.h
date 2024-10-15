@@ -1,15 +1,12 @@
 #pragma once
 
-#include <stdbool.h>
-#include <stddef.h>
-
 #include "glad.h"
 
 typedef struct vbo
 {
     GLuint id;
     GLint type;
-    bool dynamic;
+    GLboolean dynamic;
 } vbo;
 
 typedef struct vao
@@ -22,8 +19,15 @@ typedef struct shader
     GLuint id;
     GLuint vs_id;
     GLuint fs_id;
-    bool valid;
+    GLboolean valid;
 } shader;
+
+typedef struct texture
+{
+    GLuint id;
+    GLint width;
+    GLint height;
+} texture;
 
 #ifndef RGLDEF
     #ifdef RLG_STATIC
@@ -33,7 +37,9 @@ typedef struct shader
     #endif
 #endif
 
-RGLDEF vbo vbo_create(GLint type, bool dynamic);
+//vbo functions
+
+RGLDEF vbo vbo_create(GLint type, GLboolean dynamic);
 
 RGLDEF void vbo_bind(vbo self);
 
@@ -42,6 +48,8 @@ RGLDEF void vbo_unbind(vbo self);
 RGLDEF void vbo_delete(vbo self);
 
 RGLDEF void vbo_buffer(vbo self, void *data, GLuint64 offset, GLuint64 count);
+
+//vao functions
 
 RGLDEF vao vao_create();
 
@@ -56,7 +64,9 @@ RGLDEF void vao_attrib(vao self, vbo vbo, GLuint index,
                 GLsizei stride, GLuint64 offset);
 
 
-RGLDEF shader shader_create(char *vs_data, char *fs_data, GLuint64 count);
+//shader functions
+
+RGLDEF shader shader_create(const char *vs_data, const char *fs_data, GLuint64 count);
 
 RGLDEF void shader_bind(shader self);
 
@@ -64,9 +74,23 @@ RGLDEF void shader_unbind(shader self);
 
 RGLDEF void shader_delete(shader self);
 
+RGLDEF void shader_set_bool(shader self, const char *name, GLboolean value);
+
+RGLDEF void shader_set_int(shader self, const char *name, GLint value);
+
+RGLDEF void shader_set_float(shader self, const char *name, GLfloat value);
+
+RGLDEF void shader_set_matrix4fv(shader self, const char *name, GLfloat *value);
+
+//texture functions
+
+//TODO: implement
+RGLDEF texture texture_create(const char *data, GLint width, GLint height);
+
 //TODO: Add uniforms
+#define _RGL_IMPLEMENTATION_
 #ifdef _RGL_IMPLEMENTATION_
-RGLDEF vbo vbo_create(GLint type, bool dynamic)
+inline RGLDEF vbo vbo_create(GLint type, GLboolean dynamic)
 {
     vbo result = {
         .dynamic = dynamic,
@@ -77,45 +101,49 @@ RGLDEF vbo vbo_create(GLint type, bool dynamic)
     return result;
 }
 
-RGLDEF void vbo_bind(vbo self)
+//vbo functions
+
+inline RGLDEF void vbo_bind(vbo self)
 {
     glBindBuffer(self.type, self.id);
 }
 
-RGLDEF void vbo_unbind(vbo self)
+inline RGLDEF void vbo_unbind(vbo self)
 {
     glBindBuffer(self.type, 0);
 }
 
-RGLDEF void vbo_delete(vbo self)
+inline RGLDEF void vbo_delete(vbo self)
 {
     glDeleteBuffers(1, &self.id);
 }
 
-RGLDEF void vbo_buffer(vbo self, void *data, GLuint64 offset, GLuint64 count)
+inline RGLDEF void vbo_buffer(vbo self, void *data, GLuint64 offset, GLuint64 count)
 {
     vbo_bind(self);
     glBufferData(GL_ARRAY_BUFFER, count - offset, data, self.dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
 }
 
-RGLDEF vao vao_create()
+//vao functions
+
+inline RGLDEF vao vao_create()
 {
     vao result = {0};
     glGenVertexArrays(1, &result.id);    
     return result;
 }
 
-RGLDEF void vao_bind(vao self)
+inline RGLDEF void vao_bind(vao self)
 {
     glBindVertexArray(self.id);
 }
 
-RGLDEF void vao_unbind(vao self)
+inline RGLDEF void vao_unbind(vao self)
 {
     glBindVertexArray(0);
 }
 
-RGLDEF void vao_delete(vao self)
+inline RGLDEF void vao_delete(vao self)
 {
     glDeleteVertexArrays(1, &self.id);
 }
@@ -143,11 +171,12 @@ RGLDEF void vao_attrib(vao self, vbo vbo, GLuint index, GLint size, GLenum type,
     glEnableVertexAttribArray(index);
 }
 
+//shader functions
 /*NOTE: vs_data and fs_data are binary data from alread read file
 * meaning you have to load the data with your own read API
 * shader.valid is for checking if the program was compiled successfully
 */
-RGLDEF shader shader_create(char *vs_data, char *fs_data, GLuint64 count)
+RGLDEF shader shader_create(const char *vs_data, const char *fs_data, GLuint64 count)
 {
     shader result = {0};
 
@@ -155,11 +184,11 @@ RGLDEF shader shader_create(char *vs_data, char *fs_data, GLuint64 count)
     result.fs_id = glCreateShader(GL_FRAGMENT_SHADER);
 
     //TODO: Add compilation status
-    glShaderSource(result.vs_id, 1, &vs_data, NULL);
+    glShaderSource(result.vs_id, 1, &vs_data, (void *)0);
     glCompileShader(result.vs_id);
 
     //TODO: Add compilation status
-    glShaderSource(result.fs_id, 1, &fs_data, NULL);
+    glShaderSource(result.fs_id, 1, &fs_data, (void *)0);
     glCompileShader(result.fs_id);
 
     //TODO: Add compilation status
@@ -169,12 +198,12 @@ RGLDEF shader shader_create(char *vs_data, char *fs_data, GLuint64 count)
     glLinkProgram(result.id);
 }
 
-RGLDEF void shader_bind(shader self)
+inline RGLDEF void shader_bind(shader self)
 {
     glUseProgram(self.id);
 }
 
-RGLDEF void shader_unbind(shader self)
+inline RGLDEF void shader_unbind(shader self)
 {
     glUseProgram(0);
 }
@@ -184,6 +213,26 @@ RGLDEF void shader_delete(shader self)
     glDeleteProgram(self.id);
     glDeleteShader(self.vs_id);
     glDeleteShader(self.fs_id);
+}
+
+inline RGLDEF void shader_set_bool(shader self, const char *name, GLboolean value)
+{
+    glUniform1i(glGetUniformLocation(self.id, name), (GLint)value);
+}
+
+inline RGLDEF void shader_set_int(shader self, const char *name, GLint value)
+{
+    glUniform1i(glGetUniformLocation(self.id, name), value);
+}
+
+inline RGLDEF void shader_set_float(shader self, const char *name, GLfloat value)
+{
+    glUniform1f(glGetUniformLocation(self.id, name), value);
+}
+
+inline RGLDEF void shader_set_matrix4fv(shader self, const char *name, GLfloat *value)
+{
+    glUniformMatrix4fv(glGetUniformLocation(self.id, name), 1, GL_FALSE, value);
 }
 
 #endif
